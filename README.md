@@ -7,7 +7,7 @@ For ALB Controller, use aws official document
 Konga is a fully featured open source, multi-user GUI, that makes the hard task of managing multiple Kong installations a breeze.
 Kong Manager (konga) is the graphical user interface (GUI) for Kong Gateway. It uses the Kong Admin API under the hood to administer and control Kong Gateway.
 
-Introduction
+### Introduction
 
 Kong is an open-source Lua application using Nginx to have an API gateway in front of your APIs. Thanks to Kong plugins, you can customize the API gateway with many rules like rate-limiting, oauth2 … You can see all the possibilities in the Kong hub.
 Kong Ingress Controller allows users to manage the routing rules that control external user access to the service in a Kubernetes cluster from the same platform.
@@ -16,7 +16,7 @@ Refere following link to deploy kong ingress controller. ( https://github.com/Ko
 But before that we need to configure application load balancer (ALB) ingress controller.
 AWS ALB Ingress Controller for Kubernetes is a controller that triggers the creation of an Application Load Balancer and the necessary supporting AWS resources whenever an Ingress resource is created on the cluster with the kubernetes.io/ingress.class: alb annotation. The Ingress resource uses the ALB to route HTTP or HTTPS traffic to different endpoints within the cluster. 
 
-Problem Statement
+### Problem Statement
 
 Route Application Load balancer traffic through kong ingress controller to the application pod.
 			alb -> kong ingress-> service -> pod
@@ -39,20 +39,20 @@ b) Deploy the kong-proxy
 c) Create your ingress
    Then create ingress pointing to the kong proxy service.
 
+### Prerequisites
 
-Prerequisites
 A server running with Ubuntu 20.04 or later
 A running AWS EKS Cluster
 Server configured with Docker, Kubectl, AWS CLI v2, eksctl etc.
 
 
-Traffic Flow:- 
+### Traffic Flow:- 
 In the Ingress resource for ALB ingress controller, we will add backend as kube-proxy service.
 So any request came at ALB DNS it will route traffic to kong ingress controller.
 And in kong ingress resource we will add backend as a applications services. Then services will route traffics to pods/container service.
 
 
-AWS ALB Controller (Installation Setup):- 
+### AWS ALB Controller (Installation Setup):- 
 
 Follow below Documentation to install AWS ALB Controller:- 
 First Create an IAM OIDC provider for your cluster then create aws alb-controller.
@@ -80,7 +80,7 @@ For information, you can deploy a Kong API gateway without a database. You have 
 In this blog, I am going to use Kong API gateway without a Database.
 
 
-Kong Ingress Controller (Installation Setup)
+### Kong Ingress Controller (Installation Setup)
 
 To install Kong ingress controller, We need to copy the “all-in-one-dbless.yaml”  file from  below link and make some changes according to our requirements.
 (https://github.com/Kong/kubernetes-ingress-controller/blob/main/deploy/single/all-in-one-dbless.yaml )
@@ -104,7 +104,8 @@ If pods are in running state and in logs its shows successfully reconcile, It me
 After this we need to create ingress resources for ALB as well as Kong Ingress controller.
 	
 	
-Ingress Resource for ALB :-
+### Ingress Resource for ALB :-
+
 In this manifest file, we will add backend as the kong ingress service called kube-poxy and route traffic to this service. 
 Means whenever request came on alb dns, It will communicate with kong ingress controller.
 You can add annotations to kubernetes Ingress and Service objects to customize their behavior.
@@ -143,7 +144,7 @@ You can add annotations to kubernetes Ingress and Service objects to customize t
                 pathType: Prefix
 
 	
-Ingress Resource for Kong Load Balancer:- 
+### Ingress Resource for Kong Load Balancer:- 
 After creating Ingress resource for ALB, we need to create kong ingress resource manifest file in which we route traffic to the application/pod service.
 To add multiple path based routing we need to add following annotation. konghq.com/strip-path: 'true' 
         
@@ -168,7 +169,7 @@ To add multiple path based routing we need to add following annotation. konghq.c
                 path: /
                 pathType: Prefix
 
-Debugging
+### Debugging
 a) If we want to use existing Application Load Balancer then just add following annotation in ALB ingress resource.
    alb.ingress.kubernetes.io/group.name: <Value>.
 b) This annotation should be in both ingress resources from which Application Load Balancer created and also in the ingress resource, which we are going to mentioned backend as a kong-proxy service.
@@ -179,8 +180,7 @@ With all these setup, we are able to route Application Load balancer traffic thr
 
 
 
-
-Kong Ingress Controller with DB along with Konga
+### Kong Ingress Controller with DB along with Konga
 
 Kong uses an external datastore to store its configuration such as registered APIs, Consumers and Plugins. Plugins themselves can store every bit of information they need to be persisted, for example rate-limiting data or Consumer credentials.
 In our case, we will be using PostgresSQL.
