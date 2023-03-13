@@ -1,0 +1,85 @@
+kubectl apply -f https://bit.ly/echo-service
+
+      # affinity:
+      #   nodeAffinity:
+      #     requiredDuringSchedulingIgnoredDuringExecution:
+      #     # required:
+      #       nodeSelectorTerms:
+      #       - matchExpressions:
+      #         - key: topology.kubernetes.io/zone
+      #           operator: In
+      #           values:
+      #           - ap-southeast-1a
+      #         - key: topology.kubernetes.io/region
+      #           operator: In
+      #           values:
+      #           - ap-southeast-1
+
+IAM policy for secret-manager
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "secretsmanager:DescribeSecret",
+                "secretsmanager:GetSecretValue",
+                "ssm:DescribeParameters",
+                "ssm:GetParameter",
+                "ssm:GetParameters",
+                "ssm:GetParametersByPath"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        },
+        {
+            "Action": [
+                "kms:DescribeCustomKeyStores",
+                "kms:ListKeys",
+                "kms:ListAliases"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        },
+        {
+            "Action": [
+                "kms:Decrypt",
+                "kms:GetKeyRotationStatus",
+                "kms:GetKeyPolicy",
+                "kms:DescribeKey",
+            ],
+            "Effect": "Allow",
+            "Resource": "<KMS_KEY_ARN>"
+        }
+    ]
+}
+
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: eks-new-secrect-new
+spec:
+  provider: aws
+  secretObjects:
+  - secretName: test-ritika
+    type: Opaque
+    data:
+    - objectName: username
+      key: username
+  parameters:
+    objects: |
+        - objectName: "test-ritika"
+          objectType: "secretsmanager"
+          jmesPath:
+            - path: "username"
+              objectAlias: "username"
+            - path: "password"
+              objectAlias: "password"
+  secretObjects:
+    - secretName: ghanem
+      type: Opaque
+      data:
+        #- objectName: <objectName> or <objectAlias>
+        - objectName: username
+          key: username
+        - objectName: password
+          key: password

@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kong-ingress-default
+  annotations:
+      konghq.com/strip-path: 'true'
+spec:
+  ingressClassName: kong
+  rules:
+  - http:
+      paths: 
+      - backend:
+          service:
+            name: echo
+            port:
+              number: 8080
+        path: /echo
+        pathType: Prefix

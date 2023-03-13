@@ -1,0 +1,28 @@
+version: '3.7'
+services:
+    db:
+        build:
+          context: postgres
+        environment:
+          POSTGRES_USERS: ${KONG_DB_USERNAME}:${KONG_DB_PASSWORD}|${KONGA_DB_USERNAME}:${KONGA_DB_PASSWORD}
+          POSTGRES_DATABASES: ${KONG_DB_NAME}:${KONG_DB_USERNAME}|${KONGA_DB_NAME}:${KONGA_DB_USERNAME}
+        volumes:
+        - persist_volume:/var/lib/postgresql/data
+        networks:
+        - kong-net
+
+    kong-migrations:
+      image: kong:latest
+      entrypoint: sh -c "sleep 10 && kong migrations bootstrap -v"
+      environment:
+        KONG_DATABASE: ${KONG_DATABASE}
+        KONG_PG_HOST: ${KONG_DB_HOST}
+        KONG_PG_DATABASE: ${KONG_DB_NAME}
+        KONG_PG_USER: ${KONG_DB_USERNAME}
+        KONG_PG_PASSWORD: ${KONG_DB_PASSWORD}
+      depends_on:
+      - db
+      networks:
+      - kong-net
+      restart: on-failure
+

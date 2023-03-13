@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: konga
+  namespace: kong
+  annotations:
+spec:
+  type: NodePort
+  ports:
+    - name: konga
+      port: 1337
+      targetPort: 1337
+      protocol: TCP
+  selector:
+    app: konga
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: konga
+  namespace: kong
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: konga
+  template:
+    metadata:
+      labels:
+        name: konga
+        app: konga
+    spec:
+      containers:
+        - name: konga
+          image: pantsel/konga:0.14.6
+          env:
+            # - name: TOKEN_SECRET
+            #   value: "postgres"
+            - name: DB_HOST
+              value: "kong-poc.cdkesall4y3d.ap-southeast-1.rds.amazonaws.com"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USER
+              value: "kong"
+            - name: DB_PASSWORD
+              value: "postgress"
+            - name: DB_DATABASE
+              value: "postgress"
+            - name: DB_ADAPTER
+              value: "postgres"
+            - name: NODE_ENV
+              value: "development"
+          ports:
+            - name: main
+              containerPort: 1337
+              protocol: TCP
+

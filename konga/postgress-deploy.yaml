@@ -1,0 +1,82 @@
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: postgres
+#   namespace: kong
+# spec:
+#   ports:
+#   - name: pgql
+#     port: 5432
+#     protocol: TCP
+#     targetPort: 5432
+#   selector:
+#     app: postgres          
+# ---
+# apiVersion: apps/v1
+# kind: StatefulSet
+# metadata:
+#   name: postgres
+#   namespace: kong
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: postgres
+#   serviceName: postgres
+#   template:
+#     metadata:
+#       labels:
+#         app: postgres
+#     spec:
+#       containers:
+#       - env:
+#         - name: POSTGRES_USER
+#           value: kong
+#         - name: POSTGRES_PASSWORD
+#           value: kong
+#         - name: POSTGRES_DB
+#           value: kong
+#         - name: PGDATA
+#           value: /var/lib/postgresql/data/pgdata
+#         image: postgres:9.5
+#         name: postgres
+#         ports:
+#         - containerPort: 5432
+#         volumeMounts:
+#         - mountPath: /var/lib/postgresql/data
+#           name: datadir
+#           subPath: pgdata
+#       terminationGracePeriodSeconds: 60
+#   volumeClaimTemplates:
+#   - metadata:
+#       name: datadir
+#     spec:
+#       accessModes:
+#       - ReadWriteOnce
+#       resources:
+#         requests:
+#           storage: 1Gi
+
+
+oidc_id=$(aws eks describe-cluster --name eks --query "cluster.identity.oidc.issuer" --output text | cut -d '/' -f 5) 
+
+eksctl utils associate-iam-oidc-provider --cluster eks --approve
+
+eksctl create iamserviceaccount \
+  --cluster=eks \
+  --namespace=kube-system \
+  --name=aws-load-balancer-controller \
+  --role-name AmazonEKSLoadBalancerControllerRole \
+  --attach-policy-arn=arn:aws:iam::432125190050:policy/AWSLoadBalancerControllerIAMPolicy \
+  --approve
+
+aws eks update-kubeconfig --name eks-demo --region ap-southeast-1
+
+psql \
+   --host=database-1.cdkesall4y3d.ap-southeast-1.rds.amazonaws.com \
+   --port=5432 \
+   --username=kong \
+   --password \
+
+psql --host=database-1.cdkesall4y3d.ap-southeast-1.rds.amazonaws.com --port=5432 --username=kong --password --dbname=postgress

@@ -1,0 +1,12 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongConsumer
+metadata:
+  name: user1
+  annotations:
+    kubernetes.io/ingress.class: kong
+username: swapnil
+credentials:
+  - kong-nginx-secret
+
+  
+# kubectl create secret generic kong-nginx-secret --from-literal=kongCredType=basic-auth --from-literal=username=swapnil --from-literal=password=shende987

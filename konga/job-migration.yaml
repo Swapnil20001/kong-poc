@@ -1,0 +1,49 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kong-migrations
+  namespace: kong
+spec:
+  template:
+    metadata:
+      name: kong-migrations
+    spec:
+      containers:
+      - command:
+        - /bin/bash
+        - -c
+        - kong migrations bootstrap
+        env:
+        - name: KONG_PG_USER
+          value: kong
+        - name: KONG_PG_DATABASE
+          value: postgress
+        - name: KONG_PG_PASSWORD
+          value: postgress
+        - name: KONG_PG_HOST
+          value: kong-poc.cdkesall4y3d.ap-southeast-1.rds.amazonaws.com
+        - name: KONG_PG_PORT
+          value: "5432"
+        image: kong:3.1
+        name: kong-migrations
+      initContainers:
+      - command:
+        - /bin/bash
+        - -c
+        - until timeout 1 bash 9<>/dev/tcp/${KONG_PG_HOST}/${KONG_PG_PORT}; do echo
+          'waiting for db'; sleep 1; done
+        env:
+        - name: KONG_PG_USER
+          value: kong
+        - name: KONG_PG_PASSWORD
+          value: postgress
+        - name: KONG_PG_DATABASE
+          value: postgress
+        - name: KONG_PG_HOST
+          value: kong-poc.cdkesall4y3d.ap-southeast-1.rds.amazonaws.com 
+        - name: KONG_PG_PORT
+          value: "5432"
+        image: kong:3.1
+        name: wait-for-postgres
+      restartPolicy: OnFailure

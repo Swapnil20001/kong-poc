@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  labels:
+    app: nginx-service
+  namespace: kong
+  annotations:
+    konghq.com/plugins: rate-limiting-example
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: nginx-service
+  selector:
+    app: nginx-service
+
+---

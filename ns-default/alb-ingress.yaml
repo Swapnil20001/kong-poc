@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: alb-ingress-default
+  annotations:
+    alb.ingress.kubernetes.io/group.name: staging-lb
+    # alb.ingress.kubernetes.io/security-groups: sg-03c3fd841ed4c10b4
+    # alb.ingress.kubernetes.io/subnets: subnet-05fe57196ad8743a6, subnet-0c0e07b909d2b3d79
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/healthcheck-port: "80"
+    alb.ingress.kubernetes.io/target-type: instance
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":9090}]'
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP 
+    alb.ingress.kubernetes.io/healthcheck-port: traffic-port 
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
+    alb.ingress.kubernetes.io/success-codes: 200,404,403,300
+    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
+spec:
+  ingressClassName: alb
+  rules:
+  - http:
+      paths: 
+      - backend:
+          service:
+            name: kong-proxy
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+               
