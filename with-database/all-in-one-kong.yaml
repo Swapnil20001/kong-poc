@@ -1595,7 +1595,7 @@ spec:
     targetPort: 8443
   selector:
     app: ingress-kong
-  type: LoadBalancer
+  type: NodePort
 ---
 apiVersion: v1
 kind: Service
@@ -1610,20 +1610,6 @@ spec:
     targetPort: 8080
   selector:
     app: ingress-kong
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: postgres
-  namespace: kong
-spec:
-  ports:
-  - name: pgql
-    port: 5432
-    protocol: TCP
-    targetPort: 5432
-  selector:
-    app: postgres
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -1649,19 +1635,21 @@ spec:
       automountServiceAccountToken: false
       containers:
       - env:
-        - name: KONG_DATABASE
-          value: postgres
-        - name: KONG_PG_HOST
-          value: postgres
-        - name: KONG_PG_PASSWORD
+        - name: KONG_PG_USER
           value: kong
+        - name: KONG_PG_DATABASE
+          value: postgress
+        - name: KONG_PG_HOST
+          value: kong-poc.cdkesall4y3d.ap-southeast-1.rds.amazonaws.com
+        - name: KONG_PG_PASSWORD
+          value: postgress
         - name: KONG_PROXY_LISTEN
           value: 0.0.0.0:8000 reuseport backlog=16384, 0.0.0.0:8443 http2 ssl reuseport
             backlog=16384
         - name: KONG_PORT_MAPS
           value: 80:8000, 443:8443
         - name: KONG_ADMIN_LISTEN
-          value: 127.0.0.1:8444 http2 ssl reuseport backlog=16384
+          value: 0.0.0.0:8001, 0.0.0.0:8444 http2 ssl reuseport backlog=16384
         - name: KONG_STATUS_LISTEN
           value: 0.0.0.0:8100
         - name: KONG_NGINX_WORKER_PROCESSES
@@ -1717,7 +1705,7 @@ spec:
           timeoutSeconds: 1
       - env:
         - name: CONTROLLER_KONG_ADMIN_URL
-          value: https://127.0.0.1:8444
+          value: https://0.0.0.0:8444
         - name: CONTROLLER_KONG_ADMIN_TLS_SKIP_VERIFY
           value: "true"
         - name: CONTROLLER_PUBLISH_SERVICE
@@ -1773,10 +1761,14 @@ spec:
         - while true; do kong migrations list; if [[ 0 -eq $? ]]; then exit 0; fi;
           sleep 2;  done;
         env:
-        - name: KONG_PG_HOST
-          value: postgres
-        - name: KONG_PG_PASSWORD
+        - name: KONG_PG_USER
           value: kong
+        - name: KONG_PG_DATABASE
+          value: postgress
+        - name: KONG_PG_HOST
+          value: kong-poc.cdkesall4y3d.ap-southeast-1.rds.amazonaws.com
+        - name: KONG_PG_PASSWORD
+          value: postgress
         image: kong:3.1
         name: wait-for-migrations
       serviceAccountName: kong-serviceaccount
@@ -1791,90 +1783,7 @@ spec:
           - key: namespace
             path: namespace
           secretName: kong-serviceaccount-token
----
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: postgres
-  namespace: kong
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: postgres
-  serviceName: postgres
-  template:
-    metadata:
-      labels:
-        app: postgres
-    spec:
-      containers:
-      - env:
-        - name: POSTGRES_USER
-          value: kong
-        - name: POSTGRES_PASSWORD
-          value: kong
-        - name: POSTGRES_DB
-          value: kong
-        - name: PGDATA
-          value: /var/lib/postgresql/data/pgdata
-        image: postgres:9.5
-        name: postgres
-        ports:
-        - containerPort: 5432
-        volumeMounts:
-        - mountPath: /var/lib/postgresql/data
-          name: datadir
-          subPath: pgdata
-      terminationGracePeriodSeconds: 60
-  volumeClaimTemplates:
-  - metadata:
-      name: datadir
-    spec:
-      accessModes:
-      - ReadWriteOnce
-      resources:
-        requests:
-          storage: 1Gi
----
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: kong-migrations
-  namespace: kong
-spec:
-  template:
-    metadata:
-      name: kong-migrations
-    spec:
-      containers:
-      - command:
-        - /bin/bash
-        - -c
-        - kong migrations bootstrap
-        env:
-        - name: KONG_PG_PASSWORD
-          value: kong
-        - name: KONG_PG_HOST
-          value: postgres
-        - name: KONG_PG_PORT
-          value: "5432"
-        image: kong:3.1
-        name: kong-migrations
-      initContainers:
-      - command:
-        - /bin/bash
-        - -c
-        - until timeout 1 bash 9<>/dev/tcp/${KONG_PG_HOST}/${KONG_PG_PORT}; do echo
-          'waiting for db'; sleep 1; done
-        env:
-        - name: KONG_PG_HOST
-          value: postgres
-        - name: KONG_PG_PORT
-          value: "5432"
-        image: kong:3.1
-        name: wait-for-postgres
-      restartPolicy: OnFailure
+
 ---
 apiVersion: networking.k8s.io/v1
 kind: IngressClass
