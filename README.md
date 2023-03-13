@@ -7,24 +7,6 @@ KONGA:-
 Konga is a fully featured open source, multi-user GUI, that makes the hard task of managing multiple Kong installations a breeze.
 Kong Manager (konga) is the graphical user interface (GUI) for Kong Gateway. It uses the Kong Admin API under the hood to administer and control Kong Gateway.
 
-Features:-
-
-Manage all Kong Admin API Objects.
-Manage APIs, Plugins, Consumers and credentials.
-Manage multiple Kong Nodes.
-Backup, restore and migrate Kong Nodes using Snapshots.
-Monitor Node and API states using health checks.
-Multi user environment.
-Real time monitoring of Kong's state.
-Detailed Node information.
-Here are some of the things you can do with Kong Manager/konga:
-Create new Routes and Services
-Activate or deactivate plugins with a couple of clicks
-Group your teams, services, plugins, consumer management, and everything else exactly how you want them
-Monitor performance: visualize cluster-wide, workspace-level, or object-level health using intuitive, customizable dashboards
-Konga provider multiple plugin. Plugins provide advanced functionality and extend the use of the Kong Gateway, which allows you to add new features to your implementation. Plugins can be configured to run in a variety of contexts, ranging from a specific route to all upstreams, and can execute actions inside Kong before or after a request has been proxied to the upstream API, as well as on any incoming responses.
- by using konga, we can add services, route of multiple applications, just like we create ingress resource manifest file . Through konga we can do that.
-
 Introduction
 
 Kong is an open-source Lua application using Nginx to have an API gateway in front of your APIs. Thanks to Kong plugins, you can customize the API gateway with many rules like rate-limiting, oauth2 … You can see all the possibilities in the Kong hub.
@@ -46,12 +28,15 @@ a) Deploy the alb-ingress-controller
    to install the alb-ingress-controller can be found here (I used kubectl manifest): 
    ( https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html )
 
+
 b) Deploy the kong-proxy
    Deploy kong without creating a load balancer (use NodePort type). I used kubectl manifest.
    ( https://github.com/Kong/kubernetes-ingress-controller ) 
 
+
 c) Create your ingress
    Then create ingress pointing to the kong proxy service.
+
 
 Prerequisites
 A server running with Ubuntu 20.04 or later
@@ -205,6 +190,8 @@ After this we will deploy konga.
 We need to create deployment file as well as service manifest for konga.
         
 Deployment.yaml:- 
+	
+	
         apiVersion: apps/v1
         kind: Deployment
         metadata:
@@ -264,6 +251,7 @@ Deployment.yaml:-
 
 
 
+	
 After applying above manifest, we can access konga GUI. 
 
 Rate Limiting plugin-
@@ -273,6 +261,8 @@ Just need to add following annotation in metadata section in service or ingress 
 konghq.com/plugins: < name from metadata >
 
 rate-limiting.yaml:- 
+	
+	
         apiVersion: configuration.konghq.com/v1
         kind: KongPlugin
         metadata:
@@ -289,6 +279,8 @@ rate-limiting.yaml:-
 Basic-auth plugin-
                   Add Basic Authentication to a Service or a Route with username and password protection. The plugin checks for valid credentials in the Proxy-Authorization and Authorization headers (in that order).
 Basic-auth.yaml:- 
+	
+	
                   apiVersion: configuration.konghq.com/v1
                   kind: KongPlugin
                   metadata:
@@ -307,6 +299,8 @@ kubectl create secret generic <secret_name> --from-literal=kongCredType=basic-au
 We need to create kongconsumer. It is kind in kong. 
 
 Kongconsumer.yaml:- 
+	
+	
                 apiVersion: configuration.konghq.com/v1
                 kind: KongConsumer
                 metadata:
