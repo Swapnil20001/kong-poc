@@ -176,13 +176,18 @@ In our case, we will be using PostgresSQL.
 
 PostgreSQL is an established SQL database for use with Kong.
 It is a good candidate for single instance or centralized setups due to its relative simplicity and strong performance. Many cloud providers can host and scale PostgreSQL instances, most notably Amazon RDS.
+	
 In this poc, we are going to use Amazon RDS postgresSQL. 
+	
 We are going to take all-in-one-postgres.yaml file from following repository.( https://github.com/Kong/kubernetes-ingress-controller/blob/main/deploy/single/all-in-one-postgres.yaml )
+	
 From that manifest file, remove the statefulset file for postgres application as well as service file.
 Then add required environment variable for kong to integrate with amazon RDS. like KONG_PG_USER,	KONG_PG_DATABASE,	KONG_PG_HOST,	KONG_PG_PASSWORD etc.
+	
 We also make changes in environment variable of CONTROLLER_KONG_ADMIN_URL, KONG_ADMIN_LISTEN from localhost to 0.0.0.0 to configure konga.
 After these changes execute the manifest file. 
 
+	
 Database Bootstrap
 Before starting Kong, we need to bootstrap the database, meaning kong needs to create some tables in the database before it starts. And this work will do our jobs from manifests.
 
@@ -293,9 +298,11 @@ After this we need to create consumer and secrets for these authentication.
 
 Consumer will be username from yaml. To create credentials we will used kubectl command.
 
+	
 kubectl create secret generic <secret_name> --from-literal=kongCredType=basic-auth --from-literal=username=<username_from_yaml>  
 --from-literal=password= <password>
 
+	
 We need to create kongconsumer. It is kind in kong. 
 
 Kongconsumer.yaml:- 
