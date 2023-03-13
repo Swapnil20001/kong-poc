@@ -28,7 +28,6 @@ Solution Approach
 
 a) Deploy the alb-ingress-controller 
    to install the alb-ingress-controller can be found here (I used kubectl manifest): 
-   
    		( https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html )
 
 
