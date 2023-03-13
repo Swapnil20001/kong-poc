@@ -24,14 +24,17 @@ Route Application Load balancer traffic through kong ingress controller to the a
 The problem in kong ingress controller is that, It create network load balancer or classical load balancer at the time of  creating ingress controller. That why it little bit complicated with  that.
 
 Solution Approach
+
+
 a) Deploy the alb-ingress-controller 
    to install the alb-ingress-controller can be found here (I used kubectl manifest): 
-   ( https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html )
+   
+   		( https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html )
 
 
 b) Deploy the kong-proxy
    Deploy kong without creating a load balancer (use NodePort type). I used kubectl manifest.
-   ( https://github.com/Kong/kubernetes-ingress-controller ) 
+   		( https://github.com/Kong/kubernetes-ingress-controller ) 
 
 
 c) Create your ingress
@@ -54,20 +57,24 @@ AWS ALB Controller (Installation Setup):-
 
 Follow below Documentation to install AWS ALB Controller:- 
 First Create an IAM OIDC provider for your cluster then create aws alb-controller.
-(https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html )
+		(https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html )
 
-Official AWS document for installing aws alb-controller: ( https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html )
+Official AWS document for installing aws alb-controller: 
+		( https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html )
 
 Now create Kong Ingress controller.
  
 A Kubernetes Kong deployment contains an ingress controller for managing network traffic. You have different possibilities to deploy it with YAML manifest directly or with the helm chart.
+
 Refere following link to deploy Kong ingress controller.
-( https://github.com/Kong/kubernetes-ingress-controller )
+		( https://github.com/Kong/kubernetes-ingress-controller )
 
 The kong data plane that handles the actual API proxy itself applying all cross-cutting concerns configured for the given API. This is built over Nginx as the base
 The kong control plane that receives the configuration on how to proxy an API and persist the same. Kong comes with two different persistence model.
           1) Kong DB Less Mode 
           2) Kong DB Mode
+	  
+	  
 The hearth of this configuration is the Kong Ingress Controller. It aims to manage all API gateway routes.
 To store its configuration, we are going to use a PostgreSQL database.
 For information, you can deploy a Kong API gateway without a database. You have to manage the configuration in another way, like a configmap.
@@ -86,14 +93,18 @@ Apply yaml file with all changes.
 Verify that the controller is installed.
 kubectl get deployment -n <namespace> | grep kong 
 
+	
 The output is shown as follows:- 
 NAME                                  READY   UP-TO-DATE   AVAILABLE   AGE
 Ingress-kong                             1/1                 1                      1                  84s
-          
+     
+	
 It will create 1 deployment with named ingress-kong in which 2 pods are there and service named kong-proxy. 
 Check the status of pods and check logs.
 If pods are in running state and in logs its shows successfully reconcile, It means kong ingress controller are successfully deployed on our eks cluster.
 After this we need to create ingress resources for ALB as well as Kong Ingress controller.
+	
+	
 Ingress Resource for ALB :-
 In this manifest file, we will add backend as the kong ingress service called kube-poxy and route traffic to this service. 
 Means whenever request came on alb dns, It will communicate with kong ingress controller.
@@ -132,6 +143,7 @@ You can add annotations to kubernetes Ingress and Service objects to customize t
                 path: /
                 pathType: Prefix
 
+	
 Ingress Resource for Kong Load Balancer:- 
 After creating Ingress resource for ALB, we need to create kong ingress resource manifest file in which we route traffic to the application/pod service.
 To add multiple path based routing we need to add following annotation. konghq.com/strip-path: 'true' 
