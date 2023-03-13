@@ -170,12 +170,18 @@ To add multiple path based routing we need to add following annotation. konghq.c
                 pathType: Prefix
 
 ### Debugging
+	
 a) If we want to use existing Application Load Balancer then just add following annotation in ALB ingress resource.
-   alb.ingress.kubernetes.io/group.name: <Value>.
-b) This annotation should be in both ingress resources from which Application Load Balancer created and also in the ingress resource, which we are going to mentioned backend as a kong-proxy service.
+	
+  	 alb.ingress.kubernetes.io/group.name: <Value>.
+
+b) This annotation should be in both ingress resources from which Application Load Balancer created and also in the ingress resource, which we are going    to mentioned backend as a kong-proxy service.
+	
+
 By this, we able to use existing Application Load Balancer
 
-Conclusion
+### Conclusion:- 
+	
 With all these setup, we are able to route Application Load balancer traffic through kong ingress controller to the application pod/service.
 
 
@@ -199,7 +205,7 @@ We also make changes in environment variable of CONTROLLER_KONG_ADMIN_URL, KONG_
 After these changes execute the manifest file. 
 
 	
-Database Bootstrap
+### Database Bootstrap:- 
 Before starting Kong, we need to bootstrap the database, meaning kong needs to create some tables in the database before it starts. And this work will do our jobs from manifests.
 
 After this we will deploy konga.
@@ -270,7 +276,7 @@ Deployment.yaml:-
 	
 After applying above manifest, we can access konga GUI. 
 
-Rate Limiting plugin-
+### Rate Limiting plugin-
 Rate limit means how many HTTP requests can be made in a given period of seconds, minutes, hours, days, months, or years. If the underlying Service/Route (or deprecated API entity) has no authentication layer, the Client IP address will be used; otherwise, the Consumer will be used if an authentication plugin has been configured.
 We can add this plugin on service file or ingress resource file.
 Just need to add following annotation in metadata section in service or ingress resource file. 
@@ -292,7 +298,7 @@ rate-limiting.yaml:-
         plugin: rate-limiting
 
 
-Basic-auth plugin-
+### Basic-auth plugin-
                   Add Basic Authentication to a Service or a Route with username and password protection. The plugin checks for valid credentials in the Proxy-Authorization and Authorization headers (in that order).
 Basic-auth.yaml:- 
 	
@@ -310,13 +316,13 @@ After this we need to create consumer and secrets for these authentication.
 Consumer will be username from yaml. To create credentials we will used kubectl command.
 
 	
-kubectl create secret generic <secret_name> --from-literal=kongCredType=basic-auth --from-literal=username=<username_from_yaml>  
---from-literal=password= <password>
+		kubectl create secret generic <secret_name> --from-literal=kongCredType=basic-auth --from-literal=username=<username_from_yaml>  
+		--from-literal=password= <password>
 
 	
 We need to create kongconsumer. It is kind in kong. 
 
-Kongconsumer.yaml:- 
+### Kongconsumer.yaml:- 
 	
 	
                 apiVersion: configuration.konghq.com/v1
