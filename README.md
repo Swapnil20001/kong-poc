@@ -1,9 +1,9 @@
 # kong-poc
 For ALB Controller, use aws official document
 
-KONG INGRESS CONTROLLER
+### KONG INGRESS CONTROLLER
 
-KONGA:-
+### KONGA:-
 Konga is a fully featured open source, multi-user GUI, that makes the hard task of managing multiple Kong installations a breeze.
 Kong Manager (konga) is the graphical user interface (GUI) for Kong Gateway. It uses the Kong Admin API under the hood to administer and control Kong Gateway.
 
@@ -23,7 +23,7 @@ Route Application Load balancer traffic through kong ingress controller to the a
       
 The problem in kong ingress controller is that, It create network load balancer or classical load balancer at the time of  creating ingress controller. That why it little bit complicated with  that.
 
-Solution Approach
+### Solution Approach
 
 
 a) Deploy the alb-ingress-controller 
