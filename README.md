@@ -298,7 +298,8 @@ rate-limiting.yaml:-
         plugin: rate-limiting
 
 
-### Basic-auth plugin-  Add Basic Authentication to a Service or a Route with username and password protection. The plugin checks for valid credentials in the Proxy-Authorization and Authorization headers (in that order).
+### Basic-auth plugin-  
+Add Basic Authentication to a Service or a Route with username and password protection. The plugin checks for valid credentials in the Proxy-Authorization and Authorization headers (in that order).
 Basic-auth.yaml:- 
 	
 	
